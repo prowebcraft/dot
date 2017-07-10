@@ -1,0 +1,21 @@
+{
+    "name": "prowebcraft/dot",
+    "description": "PHP dot notation array access",
+    "keywords": ["php", "dotnotation", "arrayaccess"],
+    "homepage": "https://github.com/prowebcraft/php-dot-notation",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrey Mistulov",
+            "email": "prowebcraft@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Prowebcraft\\": "src"
+        }
+    },
+    "require": {
+        "php": ">=5.4"
+    }
+}
