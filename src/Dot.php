@@ -66,27 +66,20 @@ class Dot implements ArrayAccess
     public function add($key, $value = null, $pop = false)
     {
         if (is_string($key)) {
-            if (is_array($value)) {
-                // Iterate values
-                foreach ($value as $k => $v) {
-                    $this->add("$key.$k", $v, true);
-                }
-            } else {
-                // Iterate path
-                $keys = explode('.', $key);
-                $data = &$this->data;
-                if ($pop === true) {
-                    array_pop($keys);
-                }
-                foreach ($keys as $key) {
-                    if (!isset($data[$key]) || !is_array($data[$key])) {
-                        $data[$key] = [];
-                    }
-                    $data = &$data[$key];
-                }
-                // Add value to path
-                $data[] = $value;
+            // Iterate path
+            $keys = explode('.', $key);
+            $data = &$this->data;
+            if ($pop === true) {
+                array_pop($keys);
             }
+            foreach ($keys as $key) {
+                if (!isset($data[$key]) || !is_array($data[$key])) {
+                    $data[$key] = [];
+                }
+                $data = &$data[$key];
+            }
+            // Add value to path
+            $data[] = $value;
         } elseif (is_array($key)) {
             // Iterate array of paths and values
             foreach ($key as $k => $v) {
