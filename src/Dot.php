@@ -29,6 +29,137 @@ class Dot implements ArrayAccess
     }
 
     /**
+     * Get value of path, default value if path doesn't exist or all data
+     *
+     * @param  array $array Source Array
+     * @param  mixed|null $key Path
+     * @param  mixed|null $default Default value
+     * @return mixed Value of path
+     */
+    public static function getValue($array, $key, $default = null)
+    {
+        if (is_string($key)) {
+            // Iterate path
+            $keys = explode('.', $key);
+            foreach ($keys as $key) {
+                if (!isset($array[$key])) {
+                    return $default;
+                }
+                $array = &$array[$key];
+            }
+            // Get value
+            return $array;
+        } elseif (is_null($key)) {
+            // Get all data
+            return $array;
+        }
+        return null;
+    }
+
+    /**
+     * Set value or array of values to path
+     *
+     * @param array $array Target array with data
+     * @param mixed $key Path or array of paths and values
+     * @param mixed|null $value Value to set if path is not an array
+     */
+    public static function setValue(&$array, $key, $value)
+    {
+        if (is_string($key)) {
+            // Iterate path
+            $keys = explode('.', $key);
+            foreach ($keys as $key) {
+                if (!isset($array[$key]) || !is_array($array[$key])) {
+                    $array[$key] = [];
+                }
+                $array = &$array[$key];
+            }
+            // Set value to path
+            $array = $value;
+        } elseif (is_array($key)) {
+            // Iterate array of paths and values
+            foreach ($key as $k => $v) {
+                self::setValue($array, $k, $v);
+            }
+        }
+    }
+
+    /**
+     * Add value or array of values to path
+     *
+     * @param array $array Target array with data
+     * @param mixed $key Path or array of paths and values
+     * @param mixed|null $value Value to set if path is not an array
+     * @param boolean $pop Helper to pop out last key if value is an array
+     */
+    public static function addValue(&$array, $key, $value = null, $pop = false)
+    {
+        if (is_string($key)) {
+            // Iterate path
+            $keys = explode('.', $key);
+            if ($pop === true) {
+                array_pop($keys);
+            }
+            foreach ($keys as $key) {
+                if (!isset($array[$key]) || !is_array($array[$key])) {
+                    $array[$key] = [];
+                }
+                $array = &$array[$key];
+            }
+            // Add value to path
+            $array[] = $value;
+        } elseif (is_array($key)) {
+            // Iterate array of paths and values
+            foreach ($key as $k => $v) {
+                self::addValue($array, $k, $v);
+            }
+        }
+    }
+
+    /**
+     * Delete path or array of paths
+     *
+     * @param array $array Target array with data
+     * @param mixed $key Path or array of paths to delete
+     */
+    public static function deleteValue($array, $key)
+    {
+        if (is_string($key)) {
+            // Iterate path
+            $keys = explode('.', $key);
+            $last = array_pop($keys);
+            foreach ($keys as $key) {
+                if (!isset($array[$key])) {
+                    return;
+                }
+                $array = &$array[$key];
+            }
+            if (isset($array[$last])) {
+                // Detele path
+                unset($array[$last]);
+            }
+        } elseif (is_array($key)) {
+            // Iterate array of paths
+            foreach ($key as $k) {
+                self::delete($k);
+            }
+        }
+    }
+
+
+    /**
+     * Get value of path, default value if path doesn't exist or all data
+     *
+     * @param  mixed|null $key Path
+     * @param  mixed|null $default Default value
+     * @return mixed               Value of path
+     */
+    public function get($key = null, $default = null)
+    {
+        return self::getValue($this->data, $key, $default);
+    }
+
+    /**
      * Set value or array of values to path
      *
      * @param mixed $key Path or array of paths and values
@@ -36,24 +167,7 @@ class Dot implements ArrayAccess
      */
     public function set($key, $value = null)
     {
-        if (is_string($key)) {
-            // Iterate path
-            $keys = explode('.', $key);
-            $data = &$this->data;
-            foreach ($keys as $key) {
-                if (!isset($data[$key]) || !is_array($data[$key])) {
-                    $data[$key] = [];
-                }
-                $data = &$data[$key];
-            }
-            // Set value to path
-            $data = $value;
-        } elseif (is_array($key)) {
-            // Iterate array of paths and values
-            foreach ($key as $k => $v) {
-                $this->set($k, $v);
-            }
-        }
+        return self::setValue($this->data, $key, $value);
     }
 
     /**
@@ -65,55 +179,7 @@ class Dot implements ArrayAccess
      */
     public function add($key, $value = null, $pop = false)
     {
-        if (is_string($key)) {
-            // Iterate path
-            $keys = explode('.', $key);
-            $data = &$this->data;
-            if ($pop === true) {
-                array_pop($keys);
-            }
-            foreach ($keys as $key) {
-                if (!isset($data[$key]) || !is_array($data[$key])) {
-                    $data[$key] = [];
-                }
-                $data = &$data[$key];
-            }
-            // Add value to path
-            $data[] = $value;
-        } elseif (is_array($key)) {
-            // Iterate array of paths and values
-            foreach ($key as $k => $v) {
-                $this->add($k, $v);
-            }
-        }
-    }
-
-    /**
-     * Get value of path, default value if path doesn't exist or all data
-     *
-     * @param  mixed|null $key Path
-     * @param  mixed|null $default Default value
-     * @return mixed               Value of path
-     */
-    public function get($key = null, $default = null)
-    {
-        if (is_string($key)) {
-            // Iterate path
-            $keys = explode('.', $key);
-            $data = &$this->data;
-            foreach ($keys as $key) {
-                if (!isset($data[$key])) {
-                    return $default;
-                }
-                $data = &$data[$key];
-            }
-            // Get value
-            return $data;
-        } elseif (is_null($key)) {
-            // Get all data
-            return $this->data;
-        }
-        return null;
+        return self::addValue($this->data, $key, $value, $pop);
     }
 
     /**
@@ -143,27 +209,7 @@ class Dot implements ArrayAccess
      */
     public function delete($key)
     {
-        if (is_string($key)) {
-            // Iterate path
-            $keys = explode('.', $key);
-            $data = &$this->data;
-            $last = array_pop($keys);
-            foreach ($keys as $key) {
-                if (!isset($data[$key])) {
-                    return;
-                }
-                $data = &$data[$key];
-            }
-            if (isset($data[$last])) {
-                // Detele path
-                unset($data[$last]);
-            }
-        } elseif (is_array($key)) {
-            // Iterate array of paths
-            foreach ($key as $k) {
-                $this->delete($k);
-            }
-        }
+        return self::deleteValue($this->data, $key);
     }
 
     /**
