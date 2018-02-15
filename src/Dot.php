@@ -122,7 +122,7 @@ class Dot implements ArrayAccess
      * @param array $array Target array with data
      * @param mixed $key Path or array of paths to delete
      */
-    public static function deleteValue($array, $key)
+    public static function deleteValue(&$array, $key)
     {
         if (is_string($key)) {
             // Iterate path
