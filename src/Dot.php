@@ -10,7 +10,7 @@ use ArrayAccess;
  * This class provides dot notation access to arrays, so it's easy to handle
  * multidimensional data in a clean way.
  */
-class Dot implements ArrayAccess
+class Dot implements \ArrayAccess, \Iterator, \Countable
 {
 
     /** @var array Data */
@@ -154,9 +154,14 @@ class Dot implements ArrayAccess
      * @param  mixed|null $default Default value
      * @return mixed               Value of path
      */
-    public function get($key = null, $default = null)
+    public function get($key, $default = null, $asObject = false)
     {
-        return self::getValue($this->data, $key, $default);
+        $value = self::getValue($this->data, $key, $default);
+        if ($asObject && is_array($value)) {
+            return Aristos::getDotAccessObject($value);
+        }
+
+        return $value;
     }
 
     /**
@@ -164,10 +169,12 @@ class Dot implements ArrayAccess
      *
      * @param mixed $key Path or array of paths and values
      * @param mixed|null $value Value to set if path is not an array
+     * @return $this
      */
     public function set($key, $value = null)
     {
-        return self::setValue($this->data, $key, $value);
+        self::setValue($this->data, $key, $value, $merge, $recursive);
+        return $this;
     }
 
     /**
@@ -176,10 +183,12 @@ class Dot implements ArrayAccess
      * @param mixed $key Path or array of paths and values
      * @param mixed|null $value Value to set if path is not an array
      * @param boolean $pop Helper to pop out last key if value is an array
+     * @return $this
      */
     public function add($key, $value = null, $pop = false)
     {
-        return self::addValue($this->data, $key, $value, $pop);
+        self::addValue($this->data, $key, $value);
+        return $this;
     }
 
     /**
@@ -206,10 +215,42 @@ class Dot implements ArrayAccess
      * Delete path or array of paths
      *
      * @param mixed $key Path or array of paths to delete
+     * @return $this
      */
     public function delete($key)
     {
-        return self::deleteValue($this->data, $key);
+        self::deleteValue($this->data, $key);
+        return $this;
+    }
+
+    /**
+     * Increase numeric value
+     *
+     * @param string $key
+     * @param float $number
+     * @return float
+     */
+    public function plus(string $key, float $number): float
+    {
+        $newAmount = $this->get($key, 0) + $number;
+        $this->set($key, $newAmount);
+
+        return $newAmount;
+    }
+
+    /**
+     * Reduce numeric value
+     *
+     * @param string $key
+     * @param float $number
+     * @return float
+     */
+    public function minus(string $key, float $number): float
+    {
+        $newAmount = $this->get($key, 0) - $number;
+        $this->set($key, $newAmount);
+
+        return $newAmount;
     }
 
     /**
@@ -312,5 +353,116 @@ class Dot implements ArrayAccess
     public function __unset($key)
     {
         $this->delete($key);
+    }
+
+    /**
+     * Check for emptiness
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return !(bool)count($this->data);
+    }
+
+    /**
+     * Return all data as array
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->data;
+    }
+
+    /**
+     * Return as json string
+     *
+     * @return false|string
+     */
+    public function toJson()
+    {
+        return json_encode($this->data, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->toJson();
+    }
+
+    /**
+     * @return array
+     */
+    public function __toArray()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Return the current element
+     * @link https://php.net/manual/en/iterator.current.php
+     * @return mixed Can return any type.
+     * @since 5.0.0
+     */
+    public function current()
+    {
+        return current($this->data);
+    }
+
+    /**
+     * Move forward to next element
+     * @link https://php.net/manual/en/iterator.next.php
+     * @return void Any returned value is ignored.
+     * @since 5.0.0
+     */
+    public function next()
+    {
+        return next($this->data);
+    }
+
+    /**
+     * Return the key of the current element
+     * @link https://php.net/manual/en/iterator.key.php
+     * @return mixed scalar on success, or null on failure.
+     * @since 5.0.0
+     */
+    public function key()
+    {
+        return key($this->data);
+    }
+
+    /**
+     * Checks if current position is valid
+     * @link https://php.net/manual/en/iterator.valid.php
+     * @return bool The return value will be casted to boolean and then evaluated.
+     * Returns true on success or false on failure.
+     * @since 5.0.0
+     */
+    public function valid()
+    {
+        $key = key($this->data);
+        return ($key !== NULL && $key !== FALSE);
+    }
+
+    /**
+     * Rewind the Iterator to the first element
+     * @link https://php.net/manual/en/iterator.rewind.php
+     * @return void Any returned value is ignored.
+     * @since 5.0.0
+     */
+    public function rewind()
+    {
+        return reset($this->data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function count()
+    {
+        return count($this->data);
     }
 }
