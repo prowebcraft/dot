@@ -158,7 +158,7 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
     {
         $value = self::getValue($this->data, $key, $default);
         if ($asObject && is_array($value)) {
-            return Aristos::getDotAccessObject($value);
+            return new self($value);
         }
 
         return $value;
