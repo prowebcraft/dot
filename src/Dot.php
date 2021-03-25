@@ -173,7 +173,7 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
      */
     public function set($key, $value = null)
     {
-        self::setValue($this->data, $key, $value, $merge, $recursive);
+        self::setValue($this->data, $key, $value);
         return $this;
     }
 
