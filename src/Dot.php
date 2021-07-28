@@ -94,9 +94,14 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
      */
     public static function addValue(&$array, $key, $value = null, $pop = false)
     {
-        if (is_string($key)) {
+        if (is_array($key)) {
+            // Iterate array of paths and values
+            foreach ($key as $k => $v) {
+                self::addValue($array, $k, $v);
+            }
+        } else {
             // Iterate path
-            $keys = explode('.', $key);
+            $keys = explode('.', (string)$key);
             if ($pop === true) {
                 array_pop($keys);
             }
@@ -108,11 +113,6 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
             }
             // Add value to path
             $array[] = $value;
-        } elseif (is_array($key)) {
-            // Iterate array of paths and values
-            foreach ($key as $k => $v) {
-                self::addValue($array, $k, $v);
-            }
         }
     }
 
