@@ -310,24 +310,33 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
     }
 
     /**
-     * ArrayAccess abstract methods
+     * @inheritDoc
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $this->set($offset, $value);
     }
 
-    public function offsetExists($offset)
+    /**
+     * @inheritDoc
+     */
+    public function offsetExists($offset): bool
     {
         return $this->has($offset);
     }
 
-    public function offsetGet($offset)
+    /**
+     * @inheritDoc
+     */
+    public function offsetGet($offset): mixed
     {
         return $this->get($offset);
     }
 
-    public function offsetUnset($offset)
+    /**
+     * @inheritDoc
+     */
+    public function offsetUnset($offset): void
     {
         $this->delete($offset);
     }
@@ -370,7 +379,7 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->data;
     }
@@ -388,7 +397,7 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->toJson();
     }
@@ -396,7 +405,7 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
     /**
      * @return array
      */
-    public function __toArray()
+    public function __toArray(): array
     {
         return $this->toArray();
     }
@@ -407,7 +416,7 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
      * @return mixed Can return any type.
      * @since 5.0.0
      */
-    public function current()
+    public function current(): mixed
     {
         return current($this->data);
     }
@@ -418,9 +427,9 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
      * @return void Any returned value is ignored.
      * @since 5.0.0
      */
-    public function next()
+    public function next(): void
     {
-        return next($this->data);
+        next($this->data);
     }
 
     /**
@@ -429,7 +438,7 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
      * @return mixed scalar on success, or null on failure.
      * @since 5.0.0
      */
-    public function key()
+    public function key(): mixed
     {
         return key($this->data);
     }
@@ -441,7 +450,7 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
      * Returns true on success or false on failure.
      * @since 5.0.0
      */
-    public function valid()
+    public function valid(): bool
     {
         $key = key($this->data);
         return ($key !== NULL && $key !== FALSE);
@@ -453,15 +462,15 @@ class Dot implements \ArrayAccess, \Iterator, \Countable
      * @return void Any returned value is ignored.
      * @since 5.0.0
      */
-    public function rewind()
+    public function rewind(): void
     {
-        return reset($this->data);
+        reset($this->data);
     }
 
     /**
      * @inheritDoc
      */
-    public function count()
+    public function count(): int
     {
         return count($this->data);
     }
