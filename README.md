@@ -29,7 +29,7 @@ echo $data['info.home.address'];
 Via composer:
 
 ```
-composer require adbario/php-dot-notation
+composer require prowebcraft/dot
 ```
 
 Or just copy the class file Dot.php and handle namespace yourself.
@@ -37,13 +37,13 @@ Or just copy the class file Dot.php and handle namespace yourself.
 #### With [Composer](https://getcomposer.org/):
 
 ```
-composer require adbario/php-dot-notation
+composer require prowebcraft/dot
 ```
 
 #### Manual installation:
 1. Download the latest release
 2. Extract the files into your project
-3. require_once '/path/to/php-dot-notation/src/Dot.php';
+3. require_once '/path/to/dot/src/Dot.php';
 
 ## Usage
 
@@ -73,13 +73,13 @@ $array = [
 To start with an empty array, just create a new Dot object:
 
 ```php
-$data = new \Adbar\Dot;
+$data = new \Prowebcraft\Dot;
 ```
 
 If you have an array already available, inject it to the Dot object:
 
 ```php
-$data = new \Adbar\Dot($array);
+$data = new \Prowebcraft\Dot($array);
 ```
 
 Set an array after creating the Dot object:
